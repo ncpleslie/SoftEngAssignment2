@@ -2,4 +2,4 @@
 
 
 
-Intial Commit
+Initial Commit

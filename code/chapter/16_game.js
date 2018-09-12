@@ -143,59 +143,8 @@ var DOMDisplay = class DOMDisplay {
 
 var scale = 20;
 
-function drawGrid(level) {
-  return elt("table", {
-    class: "background",
-    style: `width: ${level.width * scale}px`
-  }, ...level.rows.map(row =>
-    elt("tr", {style: `height: ${scale}px`},
-        ...row.map(type => elt("td", {class: type})))
-  ));
-}
 
-function drawActors(actors) {
-  return elt("div", {}, ...actors.map(actor => {
-    let rect = elt("div", {class: `actor ${actor.type}`});
-    rect.style.width = `${actor.size.x * scale}px`;
-    rect.style.height = `${actor.size.y * scale}px`;
-    rect.style.left = `${actor.pos.x * scale}px`;
-    rect.style.top = `${actor.pos.y * scale}px`;
-    return rect;
-  }));
-}
 
-DOMDisplay.prototype.syncState = function(state) {
-  if (this.actorLayer) this.actorLayer.remove();
-  this.actorLayer = drawActors(state.actors);
-  this.dom.appendChild(this.actorLayer);
-  this.dom.className = `game ${state.status}`;
-  this.scrollPlayerIntoView(state);
-};
-
-DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
-  let width = this.dom.clientWidth;
-  let height = this.dom.clientHeight;
-  let margin = width / 3;
-
-  // The viewport
-  let left = this.dom.scrollLeft, right = left + width;
-  let top = this.dom.scrollTop, bottom = top + height;
-
-  let player = state.player;
-  let center = player.pos.plus(player.size.times(0.5))
-                         .times(scale);
-
-  if (center.x < left + margin) {
-    this.dom.scrollLeft = center.x - margin;
-  } else if (center.x > right - margin) {
-    this.dom.scrollLeft = center.x + margin - width;
-  }
-  if (center.y < top + margin) {
-    this.dom.scrollTop = center.y - margin;
-  } else if (center.y > bottom - margin) {
-    this.dom.scrollTop = center.y + margin - height;
-  }
-};
 
 Level.prototype.touches = function(pos, size, type) {
   var xStart = Math.floor(pos.x);
@@ -272,12 +221,12 @@ Coin.prototype.update = function(time) {
                   this.basePos, wobble);
 };
 
-var playerXSpeed = 7;
-var gravity = 30;
-var jumpSpeed = 17;
+var playerXSpeed = 0;
+var gravity = 15;
+var jumpSpeed = 10;
 
 Player.prototype.update = function(time, state, keys) {
-  let xSpeed = 0;
+  let xSpeed = 10;
   if (keys.ArrowLeft) xSpeed -= playerXSpeed;
   if (keys.ArrowRight) xSpeed += playerXSpeed;
   let pos = this.pos;
@@ -334,7 +283,7 @@ function runLevel(level, Display) {
   return new Promise(resolve => {
     runAnimation(time => {
       state = state.update(time, arrowKeys);
-      display.syncState(state);
+      display.setState(state);
       if (state.status == "playing") {
         return true;
       } else if (ending > 0) {
