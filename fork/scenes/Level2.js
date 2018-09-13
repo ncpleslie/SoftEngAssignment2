@@ -1,7 +1,7 @@
-class Level1 extends Phaser.Scene {
+class Level2 extends Phaser.Scene {
     constructor() {
         super({
-            key: 'Level1'
+            key: 'Level2'
         })
         this.platforms
         this.player
@@ -13,8 +13,10 @@ class Level1 extends Phaser.Scene {
         this.badguy
         this.enemyMaxY = 530
         this.enemyMinY = 500
-        this.isPlayerAlive
         // The bottem layer = 568
+        this.isPlayerAlive
+        this.lives = 3
+        
 
     }
 
@@ -141,7 +143,7 @@ class Level1 extends Phaser.Scene {
             fill: '#ffffff'
         })
         this.text.setScrollFactor(0)
-        this.text.setText(`Level 1  Score: ${this.score}`)
+        this.text.setText(`Level 2  Score: ${this.score}`)
 
         
         // Coins. These are collectable. It calls 'this.collectCoin' and clears the screen of that coin
@@ -150,6 +152,7 @@ class Level1 extends Phaser.Scene {
         
         // Kill if you fall in hole
         worldLayer.setTileIndexCallback(39, this.gameOver, this)
+        
 
         // Bad Guys. Repeat will add more. 1 in at the moment
         this.badguy = this.add.group({
@@ -241,11 +244,11 @@ class Level1 extends Phaser.Scene {
     collectCoin(sprite, tile) {
         this.coinLayer.removeTileAt(tile.x, tile.y)
         this.score++
-        this.text.setText(`Level 1  Score: ${this.score}`)
+        this.text.setText(`Level 2  Score: ${this.score}`)
         
         // Load next level
         if (this.score == 8) {
-            this.scene.start('Level2')
+            this.gameOver()
         }
         
         return false
@@ -255,8 +258,10 @@ class Level1 extends Phaser.Scene {
     gameOver() {
         
         this.score = 0
-        
         this.isPlayerAlive = false
+                
+        console.log(this.lives)
+                
         // shake the camera
         this.cameras.main.shake(500)
 
@@ -266,8 +271,8 @@ class Level1 extends Phaser.Scene {
         }, [], this)
 
         // restart game
-        this.time.delayedCall(500, function() {
-            this.scene.restart()
+             this.time.delayedCall(500, function() {
+            this.scene.start('Level1')
         }, [], this)
     }
 }
